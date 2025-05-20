@@ -46,7 +46,7 @@
 <div style="background: #000000; border: 1px solid #00ffff; border-radius: 15px; padding: 20px; box-shadow: 0 0 15px #00ffff; margin-bottom: 30px;">
     
 <div style="background: #111111; padding: 15px; border-radius: 10px; border-left: 3px solid #ff00ff;">
-  <p style="color: #00ffff;">First star & Fork repo using button Below !</p>
+  <p style="color: #00ffff;">First star & Fork repo using button Below</p>
   <a href='https://github.com/JawadYT36/KHAN-MD/fork' target="_blank">
     <img src='https://img.shields.io/badge/FORK_REPOSITORY-008000?style=for-the-badge&logo=github&logoColor=white&labelColor=000000'/>
   </a>
@@ -67,8 +67,13 @@
   <div style="height: 10px;"></div>
   
 > **PAIRiNG LINK (02)**
-  <a href='https://jawadxmd.onrender.com/' target="_blank">
+  <a href='https://jawadxmd.onrender.com/pair' target="_blank">
     <img src='https://img.shields.io/badge/PAIR_CODE_2-FF00FF?style=for-the-badge&logo=matrix&logoColor=white&labelColor=000000'/>
+  </a>
+
+  > **QR LINK (03)**
+  <a href='https://jawadxmd.onrender.com/qr' target="_blank">
+    <img src='https://img.shields.io/badge/PAIR_CODE_3-FF0000?style=for-the-badge&logo=matrix&logoColor=white&labelColor=000000'/>
   </a>
   
   ---
