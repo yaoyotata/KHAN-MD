@@ -4,7 +4,7 @@ const fetch = require('node-fetch');
 
 cmd({
     pattern: "ig",
-    alias: ["igdl", "instagram", "igimg", "igvid"],
+    alias: ["igdl", "insta", "instagram", "igimg", "igvid"],
     react: "📷",
     desc: "Download Instagram videos or images",
     category: "downloader",
