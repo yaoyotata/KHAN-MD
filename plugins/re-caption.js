@@ -2,7 +2,7 @@ const { cmd } = require("../command");
 
 cmd({
   pattern: "caption",
-  alias: ["cap", "addcaption", "c", "recaption"],
+  alias: ["cap", "recaption", "c"],
   react: '✏️',
   desc: "Add or change caption of media/document",
   category: "utility",
@@ -16,46 +16,60 @@ cmd({
     }
 
     const quotedMsg = message.quoted;
+    if (!quotedMsg || !quotedMsg.download) {
+      return await client.sendMessage(from, {
+        text: "❌ The quoted message is not valid media"
+      }, { quoted: message });
+    }
+
     const buffer = await quotedMsg.download();
     const mtype = quotedMsg.mtype;
     
-    // Extract the caption text (everything after the command)
-    const newCaption = message.body.slice(message.prefix.length + 'caption'.length).trim();
+    // Safely extract caption text
+    const newCaption = typeof match === 'string' ? match.trim() : '';
+    // Alternative method if match isn't working:
+    // const newCaption = message.body.split(' ').slice(1).join(' ').trim();
 
-    let messageContent = {};
+    if (!buffer) {
+      return await client.sendMessage(from, {
+        text: "❌ Failed to download the media"
+      }, { quoted: message });
+    }
+
+    let messageContent = {
+      caption: newCaption,
+      mimetype: quotedMsg.mimetype,
+      quoted: message
+    };
+
     switch (mtype) {
       case "imageMessage":
-        messageContent = {
-          image: buffer,
-          caption: newCaption,
-          mimetype: quotedMsg.mimetype || "image/jpeg"
-        };
+        messageContent.image = buffer;
+        messageContent.mimetype = messageContent.mimetype || "image/jpeg";
         break;
       case "videoMessage":
-        messageContent = {
-          video: buffer,
-          caption: newCaption,
-          mimetype: quotedMsg.mimetype || "video/mp4"
-        };
+        messageContent.video = buffer;
+        messageContent.mimetype = messageContent.mimetype || "video/mp4";
         break;
       case "documentMessage":
-        messageContent = {
-          document: buffer,
-          caption: newCaption,
-          mimetype: quotedMsg.mimetype
-        };
+        messageContent.document = buffer;
+        break;
+      case "audioMessage":
+        messageContent.audio = buffer;
+        messageContent.mimetype = messageContent.mimetype || "audio/mp4";
+        messageContent.ptt = quotedMsg.ptt || false;
         break;
       default:
         return await client.sendMessage(from, {
-          text: "❌ Only image, video and document messages can be recaptioned"
+          text: "❌ Only image, video, document and audio messages can be recaptioned"
         }, { quoted: message });
     }
 
-    await client.sendMessage(from, messageContent, { quoted: message });
+    await client.sendMessage(from, messageContent);
   } catch (error) {
     console.error("Caption Error:", error);
     await client.sendMessage(from, {
-      text: "❌ Error adding caption:\n" + error.message
+      text: "❌ Error adding caption:\n" + (error.message || error.toString())
     }, { quoted: message });
   }
 });
