@@ -1,17 +1,17 @@
 const { cmd } = require("../command");
+const { getContentType } = require('@whiskeysockets/baileys');
 
 cmd({
   pattern: "upstatus",
-  alias: ["uploadstatus", "pstatus", "status", "post"],
+  alias: ["uploadstatus", "statusup"],
   react: "📤",
   desc: "Upload replied media/text as status (with optional group mentions or 'all' for all groups)",
   category: "utility",
   filename: __filename
-}, async (client, message, match, { from, isQuoted, quoted }) => {
+}, async (Void, message, match, { isQuoted, quoted }) => {
   try {
-    // Check if there's a quoted message
     if (!isQuoted) {
-      return await client.sendMessage(from, {
+      return await Void.sendMessage(message.chat, {
         text: "*🍁 Please reply to a message (text/media) to upload as status!*"
       }, { quoted: message });
     }
@@ -21,12 +21,18 @@ cmd({
 
     // Get all group JIDs if 'all' flag is used
     if (allGroupsFlag) {
-      const chats = await client.fetchGroupMetadataFromWA();
-      jids = chats.map(chat => chat.id);
+      const groupMetadata = await Void.groupFetchAllParticipating();
+      jids = Object.keys(groupMetadata).filter(jid => {
+        // Filter out groups where bot is not present or is muted
+        const metadata = groupMetadata[jid];
+        return metadata && 
+               !metadata.announce && // Not announcement groups (often muted)
+               metadata.participants.find(p => p.id === Void.user.id); // Bot is participant
+      });
       
       if (jids.length === 0) {
-        return await client.sendMessage(from, {
-          text: "*❌ Bot is not in any groups!*"
+        return await Void.sendMessage(message.chat, {
+          text: "*⚠️ No available groups found (bot might be muted or not in groups)*"
         }, { quoted: message });
       }
     } else {
@@ -37,37 +43,39 @@ cmd({
     }
 
     let statusContent = {};
-    const mtype = quoted.mtype;
+    const mtype = getContentType(quoted.message);
 
     // Handle different media types
     if (mtype === "imageMessage") {
-      const buffer = await quoted.download();
+      const buffer = await Void.downloadMediaMessage(quoted);
       statusContent = {
         image: buffer,
-        caption: quoted.text || '',
-        mimetype: quoted.mimetype || "image/jpeg"
+        caption: quoted.message?.imageMessage?.caption || '',
+        mimetype: quoted.message?.imageMessage?.mimetype || "image/jpeg"
       };
     } 
     else if (mtype === "videoMessage") {
-      const buffer = await quoted.download();
+      const buffer = await Void.downloadMediaMessage(quoted);
+      const seconds = quoted.message?.videoMessage?.seconds || 0;
       
-      if (quoted.seconds > 60) {
-        return await client.sendMessage(from, {
+      if (seconds > 60) {
+        return await Void.sendMessage(message.chat, {
           text: "*❌ Video duration should be 1 minute or less*"
         }, { quoted: message });
       }
       
       statusContent = {
         video: buffer,
-        caption: quoted.text || '',
-        mimetype: quoted.mimetype || "video/mp4"
+        caption: quoted.message?.videoMessage?.caption || '',
+        mimetype: quoted.message?.videoMessage?.mimetype || "video/mp4"
       };
     } 
     else if (mtype === "audioMessage") {
-      const buffer = await quoted.download();
+      const buffer = await Void.downloadMediaMessage(quoted);
+      const seconds = quoted.message?.audioMessage?.seconds || 0;
       
-      if (quoted.seconds > 60) {
-        return await client.sendMessage(from, {
+      if (seconds > 60) {
+        return await Void.sendMessage(message.chat, {
           text: "*❌ Audio duration should be 1 minute or less*"
         }, { quoted: message });
       }
@@ -75,30 +83,50 @@ cmd({
       statusContent = {
         audio: buffer,
         mimetype: "audio/ogg; codecs=opus",
-        ptt: quoted.ptt || false
+        ptt: quoted.message?.audioMessage?.ptt || false
       };
     } 
-    else if (quoted.text) {
+    else if (mtype === "conversation" || mtype === "extendedTextMessage") {
       statusContent = {
-        text: quoted.text
+        text: quoted.message?.conversation || quoted.message?.extendedTextMessage?.text || ''
       };
     } 
     else {
-      return await client.sendMessage(from, {
+      return await Void.sendMessage(message.chat, {
         text: "*❌ Only text, image, video, and audio messages are supported*"
       }, { quoted: message });
     }
 
     // Upload status
     if (jids.length > 0) {
-      await client.StatusMentions(statusContent, jids);
-      await client.sendMessage(from, {
-        text: `*✅ Status uploaded to ${jids.length} ${allGroupsFlag ? 'groups (all)' : 'groups/users'}!*\n` +
-              `Type: ${mtype === "audioMessage" ? (statusContent.ptt ? "Voice Message" : "Audio") : mtype}`
+      let successCount = 0;
+      const failedJids = [];
+      
+      // Send to each group individually to handle failures
+      for (const jid of jids) {
+        try {
+          await Void.sendMessage(jid, statusContent, {
+            ...(mtype === "audioMessage" && statusContent.ptt ? { audio: { ptt: true } } : {})
+          });
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to send to ${jid}:`, error);
+          failedJids.push(jid);
+        }
+      }
+      
+      let resultMessage = `*✅ Status uploaded to ${successCount} groups/users!*`;
+      if (failedJids.length > 0) {
+        resultMessage += `\n*❌ Failed to send to ${failedJids.length} groups (might be muted)*`;
+      }
+      resultMessage += `\nType: ${mtype === "audioMessage" ? (statusContent.ptt ? "Voice Message" : "Audio") : mtype}`;
+      
+      await Void.sendMessage(message.chat, {
+        text: resultMessage
       }, { quoted: message });
     } else {
-      await client.sendStatus(statusContent);
-      await client.sendMessage(from, {
+      await Void.updateProfileStatus(statusContent.text || '');
+      await Void.sendMessage(message.chat, {
         text: `*✅ Status uploaded successfully!*\n` +
               `Type: ${mtype === "audioMessage" ? (statusContent.ptt ? "Voice Message" : "Audio") : mtype}`
       }, { quoted: message });
@@ -106,7 +134,7 @@ cmd({
 
   } catch (error) {
     console.error("upstatus Error:", error);
-    await client.sendMessage(from, {
+    await Void.sendMessage(message.chat, {
       text: "❌ Error uploading status:\n" + error.message
     }, { quoted: message });
   }
