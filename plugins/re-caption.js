@@ -25,10 +25,9 @@ cmd({
     const buffer = await quotedMsg.download();
     const mtype = quotedMsg.mtype;
     
-    // Safely extract caption text
-    const newCaption = typeof match === 'string' ? match.trim() : '';
-    // Alternative method if match isn't working:
-    // const newCaption = message.body.split(' ').slice(1).join(' ').trim();
+    // Get the caption text (everything after the command)
+    const cmdText = message.body.split(' ')[0].toLowerCase();
+    const newCaption = message.body.slice(cmdText.length).trim();
 
     if (!buffer) {
       return await client.sendMessage(from, {
@@ -36,12 +35,13 @@ cmd({
       }, { quoted: message });
     }
 
-    let messageContent = {
+    // Create the base message content
+    const messageContent = {
       caption: newCaption,
-      mimetype: quotedMsg.mimetype,
-      quoted: message
+      mimetype: quotedMsg.mimetype
     };
 
+    // Add the appropriate media property based on type
     switch (mtype) {
       case "imageMessage":
         messageContent.image = buffer;
@@ -53,6 +53,7 @@ cmd({
         break;
       case "documentMessage":
         messageContent.document = buffer;
+        messageContent.mimetype = messageContent.mimetype || "application/octet-stream";
         break;
       case "audioMessage":
         messageContent.audio = buffer;
@@ -65,7 +66,9 @@ cmd({
         }, { quoted: message });
     }
 
-    await client.sendMessage(from, messageContent);
+    // Send the message with media and caption
+    await client.sendMessage(from, messageContent, { quoted: message });
+
   } catch (error) {
     console.error("Caption Error:", error);
     await client.sendMessage(from, {
