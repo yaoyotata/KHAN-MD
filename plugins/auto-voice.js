@@ -1,34 +1,23 @@
-const axios = require('axios');
-const config = require("../config");
-const { cmd } = require("../command");
+const fs = require('fs');
+const path = require('path');
+const config = require('../config')
+const {cmd , commands} = require('../command')
 
-cmd({ on: "body" }, async (conn, m, msg, { from, body }) => {
-  try {
-    const jsonUrl = "https://raw.githubusercontent.com/JawadYT36/KHAN-DATA/main/autovoice.json";
-    const res = await axios.get(jsonUrl);
-    const voiceMap = res.data;
-
-    for (const keyword in voiceMap) {
-      if (body.toLowerCase() === keyword.toLowerCase()) {
-        if (config.AUTO_VOICE === "true") {
-          const audioUrl = voiceMap[keyword];
-
-          // Ensure it's a .mp3 or .m4a file
-          if (!audioUrl.endsWith(".mp3") && !audioUrl.endsWith(".m4a")) {
-            return conn.sendMessage(from, { text: "Invalid audio format. Only .mp3 and .m4a supported." }, { quoted: m });
-          }
-
-          await conn.sendPresenceUpdate("recording", from);
-          await conn.sendMessage(from, {
-            audio: { url: audioUrl },
-            mimetype: "audio/mpeg", // This works fine for .mp3 and .m4a
-            ptt: true
-          }, { quoted: m });
+//auto_voice
+cmd({
+  on: "body"
+},    
+async (conn, mek, m, { from, body, isOwner }) => {
+    const filePath = path.join(__dirname, '../data/autovoice.json');
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    for (const text in data) {
+        if (body.toLowerCase() === text.toLowerCase()) {
+            
+            if (config.AUTO_VOICE === 'true') {
+                //if (isOwner) return;        
+                await conn.sendPresenceUpdate('recording', from);
+                await conn.sendMessage(from, { audio: { url: data[text] }, mimetype: 'audio/mpeg', ptt: true }, { quoted: mek });
+            }
         }
-      }
-    }
-  } catch (e) {
-    console.error("AutoVoice error:", e);
-    return conn.sendMessage(from, { text: "Error fetching voice: " + e.message }, { quoted: m });
-  }
+    }                
 });
