@@ -67,12 +67,12 @@
   <div style="height: 10px;"></div>
   
 > **PAIRiNG LINK (02)**
-  <a href='https://jawadxmd.onrender.com/pair' target="_blank">
+  <a href='https://jawadmd-pair.onrender.com/pair' target="_blank">
     <img src='https://img.shields.io/badge/PAIR_CODE_2-FF00FF?style=for-the-badge&logo=matrix&logoColor=white&labelColor=000000'/>
   </a>
 
   > **QR LINK (03)**
-  <a href='https://jawadxmd.onrender.com/qr' target="_blank">
+  <a href='https://jawadmd-pair.onrender.com/qr' target="_blank">
     <img src='https://img.shields.io/badge/PAIR_CODE_3-FF0000?style=for-the-badge&logo=matrix&logoColor=white&labelColor=000000'/>
   </a>
   
