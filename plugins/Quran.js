@@ -98,7 +98,7 @@ cmd({
     react: "❤️",
     filename: __filename
 }, 
-async (conn, mek, m, { from, quoted, body,isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
+async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
     try {
         let dec = `❤️  ⊷┈ *QURAN KAREEM* ┈⊷  🤍
 
@@ -465,14 +465,10 @@ async (conn, mek, m, { from, quoted, body,isCmd, command, args, q, isGroup, send
             { quoted: mek }
         );
 
-        await conn.sendMessage(from, {
-            audio: { url: 'https://github.com/JawadYT36/KHAN-DATA/raw/refs/heads/main/autovoice/Quran.m4a' },
-            mimetype: 'audio/mp4',
-            ptt: false
-        }, { quoted: mek });
-        
     } catch (e) {
         console.log(e);
         reply(`${e}`);
     }
 });
+
+
