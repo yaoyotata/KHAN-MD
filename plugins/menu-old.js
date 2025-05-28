@@ -3,6 +3,7 @@ const { cmd } = require('../command');
 const { runtime } = require('../lib/functions');
 const os = require("os");
 const axios = require('axios');
+const fs = require('fs');
 
 cmd({
     pattern: "menu3",
@@ -62,9 +63,9 @@ async (conn, mek, m, { from, sender, pushname, reply }) => {
             { quoted: mek }
         );
 
-        // Send cool voice note with context
+        // Send local audio from assets/menu.m4a
         await conn.sendMessage(from, {
-            audio: { url: 'https://github.com/JawadYT36/KHAN-DATA/raw/refs/heads/main/autovoice/menunew.m4a' },
+            audio: fs.readFileSync('./assets/menu.m4a'),
             mimetype: 'audio/mp4',
             ptt: true,
             contextInfo: {
