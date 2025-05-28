@@ -276,30 +276,6 @@ async (conn, mek, m, { from, args, isCreator, reply }) => {
     }
 });
 
-// AUTO_VOICE
-
-cmd({
-    pattern: "auto-voice",
-    alias: ["autovoice"],
-    desc: "enable or disable readmessage.",
-    category: "settings",
-    filename: __filename
-},    
-async (conn, mek, m, { from, args, isCreator, reply }) => {
-    if (!isCreator) return reply("*📛 ᴏɴʟʏ ᴛʜᴇ ᴏᴡɴᴇʀ ᴄᴀɴ ᴜsᴇ ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ!*");
-
-    const status = args[0]?.toLowerCase();
-    // Check the argument for enabling or disabling the anticall feature
-    if (args[0] === "on") {
-        config.AUTO_VOICE = "true";
-        return reply("AUTO_VOICE feature is now enabled.");
-    } else if (args[0] === "off") {
-        config.AUTO_VOICE = "false";
-        return reply("AUTO_VOICE feature is now disabled.");
-    } else {
-        return reply(`_example:  .autovoice on_`);
-    }
-});
 
 
 //--------------------------------------------
