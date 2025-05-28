@@ -362,7 +362,7 @@ async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sen
         );
  // Send audio from local file
 await conn.sendMessage(from, {
-    audio: fs.readFileSync('./assets/menu.m4a'),
+    audio: fs.readFileSync('../assets/menu.m4a'),
     mimetype: 'audio/mp4',
     ptt: true
 }, { quoted: mek });
