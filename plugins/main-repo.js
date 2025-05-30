@@ -48,7 +48,7 @@ async (conn, mek, m, { from, reply }) => {
         }, { quoted: mek });
 
         // Send local audio file
-        const audioPath = path.join(__dirname, '../assets/jawad.m4a');
+        const audioPath = path.join(__dirname, '../assets/menu.m4a');
         await conn.sendMessage(from, {
             audio: fs.readFileSync(audioPath),
             mimetype: 'audio/mp4',
