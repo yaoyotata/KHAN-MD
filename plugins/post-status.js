@@ -2,7 +2,7 @@ const { cmd } = require("../command");
 
 cmd({
   pattern: "post",
-  alias: ["poststatus", "story", "repost", "reshare"],
+  alias: ["poststatus", "status", "story", "repost", "reshare"],
   react: '📝',
   desc: "Posts replied media to bot's status",
   category: "utility",
