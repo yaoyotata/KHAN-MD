@@ -1,3 +1,4 @@
+const fs = require('fs');
 const config = require('../config');
 const { cmd, commands } = require('../command');
 const { runtime } = require('../lib/functions');
@@ -11,6 +12,9 @@ cmd({
     filename: __filename
 }, async (conn, mek, m, { from, reply }) => {
     try {
+        // Count total commands
+        const totalCommands = Object.keys(commands).length;
+        
         const menuCaption = `╭━━━〔 *${config.BOT_NAME}* 〕━━━┈⊷
 ┃★╭──────────────
 ┃★│ 👑 Owner : *${config.OWNER_NAME}*
@@ -19,7 +23,8 @@ cmd({
 ┃★│ 🚀 Platform : *Heroku*
 ┃★│ ⚙️ Mode : *[${config.MODE}]*
 ┃★│ 🔣 Prefix : *[${config.PREFIX}]*
-┃★│ 🏷️ Version : *4.0.0 Bᴇᴛᴀ*
+┃★│ 🏷️ Version : *5.0.0 Bᴇᴛᴀ*
+┃★│ 📚 Commands : *${totalCommands}*
 ┃★╰──────────────
 ╰━━━━━━━━━━━━━━━┈⊷
 ╭━━〔 *Menu List* 〕━━┈⊷
@@ -71,43 +76,20 @@ cmd({
             }
         };
 
-        // Function to send menu audio with timeout
-        const sendMenuAudio = async () => {
-            try {
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Small delay after image
-                await conn.sendMessage(from, {
-                    audio: { url: 'https://github.com/JawadYT36/KHAN-DATA/raw/refs/heads/main/autovoice/menunew.m4a' },
-                    mimetype: 'audio/mp4',
-                    ptt: true,
-                }, { quoted: mek });
-            } catch (e) {
-                console.log('Audio send failed, continuing without it');
-            }
-        };
-
-        // Send image first, then audio sequentially
+        // Send image with timeout
         let sentMsg;
         try {
-            // Send image with 10s timeout
             sentMsg = await Promise.race([
                 sendMenuImage(),
                 new Promise((_, reject) => setTimeout(() => reject(new Error('Image send timeout')), 10000))
             ]);
-            
-            // Then send audio with 1s delay and 8s timeout
-            await Promise.race([
-                sendMenuAudio(),
-                new Promise((_, reject) => setTimeout(() => reject(new Error('Audio send timeout')), 8000))
-            ]);
         } catch (e) {
             console.log('Menu send error:', e);
-            if (!sentMsg) {
-                sentMsg = await conn.sendMessage(
-                    from,
-                    { text: menuCaption, contextInfo: contextInfo },
-                    { quoted: mek }
-                );
-            }
+            sentMsg = await conn.sendMessage(
+                from,
+                { text: menuCaption, contextInfo: contextInfo },
+                { quoted: mek }
+            );
         }
         
         const messageID = sentMsg.key.id;
@@ -226,7 +208,7 @@ cmd({
 ┃★│ • restart
 ┃★│ • shutdown
 ┃★│ • updatecmd
-┃★╰───────────���──
+┃★╰──────────────
 ┃★╭──────────────
 ┃★│ ℹ️ *Info Tools*
 ┃★│ • gjid

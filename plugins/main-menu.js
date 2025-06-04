@@ -1,5 +1,6 @@
 const config = require('../config')
 const { cmd, commands } = require('../command');
+const path = require('path'); 
 const os = require("os")
 const fs = require('fs');
 const {runtime} = require('../lib/functions')
@@ -360,11 +361,13 @@ async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sen
             },
             { quoted: mek }
         );
- // Send audio from local file
+// share local audio 
+
+const audioPath = path.join(__dirname, '../assets/menu.m4a');
 await conn.sendMessage(from, {
-    audio: fs.readFileSync('../assets/menu.m4a'),
+    audio: fs.readFileSync(audioPath),
     mimetype: 'audio/mp4',
-    ptt: true
+    ptt: true,
 }, { quoted: mek });
         
     } catch (e) {

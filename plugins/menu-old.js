@@ -2,13 +2,14 @@ const config = require('../config');
 const { cmd } = require('../command');
 const { runtime } = require('../lib/functions');
 const os = require("os");
+const path = require('path');
 const axios = require('axios');
 const fs = require('fs');
 
 cmd({
     pattern: "menu3",
     desc: "menu the bot",
-    category: "menu2",
+    category: "menu3",
     react: "⚡",
     filename: __filename
 },
@@ -64,21 +65,13 @@ async (conn, mek, m, { from, sender, pushname, reply }) => {
         );
 
         // Send local audio from assets/menu.m4a
-        await conn.sendMessage(from, {
-            audio: fs.readFileSync('./assets/menu.m4a'),
-            mimetype: 'audio/mp4',
-            ptt: true,
-            contextInfo: {
-                mentionedJid: [m.sender],
-                forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363354023106228@newsletter',
-                    newsletterName: 'JawadTechX',
-                    serverMessageId: 143
-                }
-            }
-        }, { quoted: mek });
+
+const audioPath = path.join(__dirname, '../assets/menu.m4a');
+await conn.sendMessage(from, {
+    audio: fs.readFileSync(audioPath),
+    mimetype: 'audio/mp4',
+    ptt: true,
+}, { quoted: mek });
 
     } catch (e) {
         console.error(e);
